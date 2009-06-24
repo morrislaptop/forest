@@ -75,6 +75,21 @@ class LeafBehavior extends ModelBehavior
 	}
 
 /**
+ * Before delete method. Called before all deletes
+ *
+ * Will reset all the siblings
+ *
+ * @param AppModel $Model Model instance
+ * @return boolean true to continue, false to abort the delete
+ * @access public
+ */
+	function beforeDelete(&$model) {
+		extract($this->settings[$model->alias]);
+		$this->reset($model, $model->field($parent));
+		return true;
+	}
+
+/**
  * reset function
  *
  * @param mixed $parentId
