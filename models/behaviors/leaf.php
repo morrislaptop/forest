@@ -44,7 +44,7 @@ class LeafBehavior extends ModelBehavior
  */
 	var $_defaults = array(
 		'parent' => 'parent_id', 'depth' => 'depth', 'sequence' => 'sequence',
-		'left' => 'lft', 'right' => 'rght'
+		'left' => 'lft', 'right' => 'rght', 'first' => 'first', 'last' => 'last'
 	);
 
 /**
@@ -153,7 +153,7 @@ class LeafBehavior extends ModelBehavior
  */
 	function resetSequences(&$model, $parentId = null, $prefix = '', $start = true) {
 		extract($this->settings[$model->alias]);
-		if ($prefix == '' && $start == true) {
+		if ($prefix == '' && $start == true && $parentId) {
 			$model->id = $parentId;
 			$depthVal = $model->field($depth);
 			$prefix = $model->field($sequence);
@@ -163,14 +163,24 @@ class LeafBehavior extends ModelBehavior
 		$prefix = $prefix ? $prefix . '.' : $prefix;
 		$index = $parentId ? 1 : '';
 		if ($nodes) {
+			$isFirst = 1;
+			$isLast = 0;
 			foreach ($nodes as $node) {
 				$node = $node[$model->alias];
 				$model->create();
 				$model->id = $node[$model->primaryKey];
-				$model->saveField($sequence, $prefix . $index);
+				$data = array(
+					$sequence => $prefix . $index,
+					$first => $isFirst,
+					$last => $isLast
+				);
+				$model->save($data);
 				$this->resetSequences($model, $node[$model->primaryKey], $prefix . $index, false);
 				$index++;
+				$isFirst = 0;
 			}
+			// mark the last.
+			$model->saveField($last, 1);
 		}
 		return true;
 	}
