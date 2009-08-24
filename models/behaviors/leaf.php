@@ -67,10 +67,16 @@ class LeafBehavior extends ModelBehavior
  * @return void
  */
 	function afterSave(&$model) {
+		$data = $model->data;
+		$id = $model->id;
+		
 		extract($this->settings[$model->alias]);
 		if ( array_key_exists($parent, $model->data[$model->alias]) ) {
 			$this->reset($model, $model->data[$model->alias][$parent]);
 		}
+		
+		$model->data = $data;
+		$model->id = $id;
 		return true;
 	}
 
@@ -138,7 +144,7 @@ class LeafBehavior extends ModelBehavior
 		foreach ($nodes as $nodeId => $node) {
 			$model->id = $nodeId;
 			$parent = $model->getPath($nodeId, array($model->primaryKey));
-			$model->saveField($depth, count($parent) - 1);
+			$model->saveField($depth, count($parent) - 1, array('callbacks' => false));
 		}
 		return true;
 	}
@@ -174,13 +180,13 @@ class LeafBehavior extends ModelBehavior
 					$first => $isFirst,
 					$last => $isLast
 				);
-				$model->save($data);
+				$model->save($data, array('validate' => false, 'callbacks' => false));
 				$this->resetSequences($model, $node[$model->primaryKey], $prefix . $index, false);
 				$index++;
 				$isFirst = 0;
 			}
 			// mark the last.
-			$model->saveField($last, 1);
+			$model->saveField($last, 1, array('callbacks' => false));
 		}
 		return true;
 	}
