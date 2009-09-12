@@ -167,7 +167,7 @@ class LeafBehavior extends ModelBehavior
 		$model->recursive = -1;
 		$nodes = $model->findAllByParent_id($parentId, null, $left . ' ASC');
 		$prefix = $prefix ? $prefix . '.' : $prefix;
-		$index = $parentId ? 1 : '';
+		$index = 1;
 		if ($nodes) {
 			$isFirst = 1;
 			$isLast = 0;
